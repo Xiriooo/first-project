@@ -1,0 +1,38 @@
+.ranked-stats {
+    padding: 20px;
+    background-color: #f8f8f8;
+    border-radius: 12px;
+}
+
+.ranked-entry {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.ranked-entry h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.ranked-entry img {
+    width: 100px;
+    height: 100px;
+}
+
+.ranked-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.ranked-info p {
+    margin: 2px 0;
+    font-size: 0.95rem;
+    color: #555;
+}

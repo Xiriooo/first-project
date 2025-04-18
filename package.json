@@ -1,0 +1,21 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "My full-stack app",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm start --prefix client\" \"npx ts-node ./server/src/index.ts\"",
+    "stop": "taskkill /F /IM node.exe"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^7.0.0",
+    "mongoose": "^8.9.2",
+    "pg": "^8.13.1",
+    "sequelize": "^6.37.5"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.2"
+  }
+}
