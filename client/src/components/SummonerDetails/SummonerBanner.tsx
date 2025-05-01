@@ -2,7 +2,6 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import './SummonerBanner.css';
 import { SummonerDetailsProps } from '../Shared/types';
-import SummonerDetailsPage from '../../pages/SummonerDetailsPage';
 
 const SummonerBanner: React.FC<SummonerDetailsProps> = ({ summoner }) => {
     const { riotId } = useParams<{ riotId: string }>();

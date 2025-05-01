@@ -79,3 +79,14 @@
 .search-history-dropdown li:hover {
   background-color: #656565;
 }
+
+.search-bar-dropdown,
+.search-history-dropdown,
+.search-history-dropdown-item {
+  all: unset;
+  background: #1e1e1e;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}

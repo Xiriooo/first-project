@@ -6,15 +6,14 @@
     gap: 16px;
     margin-inline: auto;
     margin-top: 50px;
-
-    /* Adjust these properties for size */
-    width: 100%; /* Full width or adjust as needed */
-    max-width: 600px; /* Maximum width for responsiveness */
-    padding: 20px; /* Increase or decrease padding */
-    background-color: #1f1638; /* Background color */
-    color: #ffffff; /* Text color */
-    border-radius: 12px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional shadow */
+    width: 100%;
+    max-width: 1000px;
+    height: 100px;
+    padding: 20px;
+    background-color: #1f1638;
+    color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .filters-container {
@@ -23,24 +22,25 @@
 
     /* Adjust width and spacing */
     width: 100%;
-    gap: 20px;
+    gap: 10px;
 }
 
 .filters-container select {
     flex: 1;
-    padding: 10px; /* Adjust padding for size */
-    font-size: 16px; /* Adjust font size for dropdowns */
+    padding: 10px;
+    font-size: 16px;
 }
 
 .summary-container {
-    width: 100%; /* Match width with filters */
-    padding: 12px; /* Increase or decrease padding */
-    background-color: #302a52; /* Background color for summary */
-    color: #ffffff; /* Text color */
-    border-radius: 8px; /* Rounded corners */
-    font-size: 16px; /* Adjust font size for summary text */
+    width: 100%;
+    padding: 12px;
+    background-color: #302a52;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 16px;
     display: flex;
-    justify-content: space-between; /* Space out items */
-    gap: 20px;
+    justify-content: space-between;
+    gap: 10px;
+    vertical-align: auto;
 }
 

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
+import * as Select from '@radix-ui/react-select';
 import "./SearchBar.css";
 import { SearchBarProps } from "../Shared/types";
 import {NavigateFunction, useNavigate} from "react-router-dom";
+import {Check, ChevronDown} from "lucide-react";
+import RegionSelect from "./RegionSelect";
+import SearchInput from "./SearchInput";
 localStorage.removeItem('region');
 
 const regions = [
@@ -24,14 +28,14 @@ const regions = [
 ];
 
 const SearchBar: React.FC<SearchBarProps> = ({
-  region,
-  setRegion,
-  riotId,
-  setRiotId,
-}: SearchBarProps) => {
-  const navigate: NavigateFunction = useNavigate();
+                                               region,
+                                               setRegion,
+                                               riotId,
+                                               setRiotId,
+                                             }: SearchBarProps) => {
+  const navigate = useNavigate();
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused]       = useState(false);
   const [pendingSearch, setPendingSearch] = useState<{
     region: string;
     riotId: string;
@@ -183,41 +187,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="search-bar">
-      <div className="search-bar-container">
-        <select
-          value={region}
-          onChange={(e) => handleRegionChange(e.target.value)}
-          className="search-bar-dropdown"
-        >
-          <option value="">Region</option>
-          {regions.map((r) => (
-            <option key={r.code} value={r.code}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="GameName#TagLine"
-          value={riotId}
-          onChange={(e) => setRiotId(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          className="search-bar-input"
-        />
-        {isFocused && searchHistory.length > 0 && (
-          <ul className="search-history-dropdown">
-            {searchHistory.map((entry, index) => (
-              <li key={index} onClick={() => handleHistoryClick(entry)}>
-                {entry}
-              </li>
-            ))}
-          </ul>
-        )}
+      <div className="flex items-center justify-center mt-4 px-4">
+        <div className="flex w-full max-w-2xl">
+          <RegionSelect
+              value={region}
+              onChange={handleRegionChange}
+              options={regions}
+          />
+          <SearchInput
+              value={riotId}
+              onChange={setRiotId}
+              onSearch={handleSearch}
+              history={searchHistory}
+              onHistoryClick={handleHistoryClick}
+          />
+        </div>
       </div>
-    </div>
   );
 };
 

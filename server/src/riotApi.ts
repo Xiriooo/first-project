@@ -248,3 +248,24 @@ export const getLeagueData = async (
     throw error;
   }
 };
+
+export const getMatchTimeline = async (
+    region: keyof typeof PLATFORM_REGIONS,
+    matchId: string
+): Promise<any> => {
+  const routingRegion = PLATFORM_REGIONS[region].routing;
+  const url = `https://${routingRegion}.api.riotgames.com/lol/match/${API_VERSIONS.match}/matches/${matchId}/timeline`;
+
+  try {
+    const response: AxiosResponse<any> = await axios.get(url, {
+      headers: {
+        "X-Riot-Token": process.env.RIOT_API_KEY!,
+      },
+    });
+
+    return response.data;
+  } catch (error: any) {
+    console.error("Error fetching match timeline:", error.response?.data || error.message);
+    throw new Error(`Failed to fetch timeline for match ${matchId}`);
+  }
+};

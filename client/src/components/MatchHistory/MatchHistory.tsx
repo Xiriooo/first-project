@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios, { AxiosResponse } from "axios";
-import { Match, MatchHistoryProps } from "../Shared/types";
+import {FullMatch, MatchHistoryProps, MatchSummary, Participant} from "../Shared/types";
 import MatchNavigationBar from "./MatchNavigationBar";
 import MatchCards from "./MatchCards";
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ region, puuid }: MatchHistoryProps) => {
-    const [matches, setMatches] = useState<Match[]>([]);
+    const [fullMatches, setFullMatches] = useState<FullMatch[]>([]);
     const [filters, setFilters] = useState<{ queue: string; champion: string }>({
         queue: "",
         champion: "",
@@ -33,12 +33,12 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ region, puuid }: MatchHisto
                     },
                 });
 
-                const fullMatches = matchDetailsRes.data; // should be an array of full match data
+                const fullMatches: FullMatch[] = matchDetailsRes.data; // should be an array of full match data
                 console.log("Match Details:", fullMatches);
 
-                const detailedMatches = fullMatches.map((match: any) => {
-                    const playerData = match.info.participants.find(
-                        (participant: any) => participant.puuid === puuid
+                const detailedMatches: any = fullMatches.map((match: any) => {
+                    const playerData: any = match.info.participants.find(
+                        (participant: any): boolean => participant.puuid === puuid
                     );
 
                     return {
@@ -54,7 +54,8 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ region, puuid }: MatchHisto
                     };
                 });
 
-                setMatches(detailedMatches);
+
+                setFullMatches(fullMatches);
             } catch (error) {
                 console.error("Error fetching match details:", error);
             }
@@ -64,25 +65,44 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ region, puuid }: MatchHisto
     }, [region, puuid]);
 
 
+    console.log("Matches:", fullMatches);
 
+    const filteredMatches: FullMatch[] = useMemo((): FullMatch[] => {
+        return fullMatches.filter((match: FullMatch): boolean => {
+            const player = match.info.participants.find((p: Participant): boolean => p.puuid === puuid);
+            if (!player) return false;
 
-
-    const filteredMatches: Match[] = useMemo((): Match[] => {
-        return matches.filter((match: Match): boolean => {
-            const matchesQueue: boolean = !filters.queue || filters.queue === "All" || match.queueType === filters.queue;
-            const matchesChampion: boolean = !filters.champion || match.championPlayed === filters.champion;
+            const matchesQueue: boolean = !filters.queue || match.info.queueId.toString() === filters.queue;
+            const matchesChampion: boolean = !filters.champion || player.championName === filters.champion;
             return matchesQueue && matchesChampion;
         });
-    }, [matches, filters.queue, filters.champion]);
+    }, [fullMatches, filters.queue, filters.champion, puuid]);
 
-    const matchSummary = useMemo(() => {
-        const wins: number = filteredMatches.filter((match: Match): boolean => match.result === "Win").length;
-        const losses: number = filteredMatches.length - wins;
-        return { totalMatches: filteredMatches.length, wins, losses };
-    }, [filteredMatches]);
+    const matchSummary: MatchSummary = useMemo(() => {
+        const wins = filteredMatches.filter((match: FullMatch) => {
+            const player = match.info.participants.find((p) => p.puuid === puuid);
+            return player?.win;
+        }).length;
 
-    const queueOptions: string[] = Array.from(new Set(matches.map((match: Match   ): string => match.queueType))).sort();
-    const championOptions: string[] = Array.from(new Set(matches.map((match: Match): string => match.championPlayed))).sort();
+        return {
+            totalMatches: filteredMatches.length,
+            wins,
+            losses: filteredMatches.length - wins,
+        };
+    }, [filteredMatches, puuid]);
+
+    const queueOptions: string[] = Array.from(
+        new Set(fullMatches.map((match) => match.info.queueId.toString()))
+    ).sort();
+
+    const championOptions: string[] = Array.from(
+        new Set(
+            fullMatches.map(
+                (match) => match.info.participants.find((p) => p.puuid === puuid)?.championName
+            ).filter((c): c is string => typeof c === "string")
+        )
+    ).sort() ?? [];
+
 
     return (
         <div className="match-history">
@@ -93,7 +113,9 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ region, puuid }: MatchHisto
                 queueOptions={queueOptions}
                 championOptions={championOptions}
             />
-            <MatchCards matches={filteredMatches} />
+            {fullMatches.map((match: any) => (
+                <MatchCards key={match.metadata.matchId} match={match} puuid={puuid} />
+            ))}
         </div>
     );
 };

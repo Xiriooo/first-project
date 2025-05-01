@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Express, Request, Response } from 'express';
 import {
     getAccountByRiotId,
     PLATFORM_REGIONS,
@@ -7,21 +7,21 @@ import {
     getMatchDetails,
     getSummonerById,
     getLeagueData,
+    getMatchTimeline
 } from './riotApi';
 import bodyParser from 'body-parser';
 import { logger } from "./middleware/logger";
 import dotenv from 'dotenv';
 dotenv.config();
 import connectDB from '../../db'
-import Player from '../../db/models/player'
-import Match, {IMatch} from '../../db/models/match';
+import CleanMatchModel from "../../db/models/cleanMatch";
 
-const app  = express();
+const app: Express  = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(logger);
 
-(async ():Promise<void> => {
+(async ():Promise <void> => {
     try {
         await connectDB();
         console.log('Server started and database connected.');
@@ -33,7 +33,7 @@ app.use(logger);
 
 
 // Route to fetch account by Riot ID
-app.get('/api/account', async (req: Request, res: Response): Promise<any> => {
+app.get('/api/account', async (req: Request, res: Response): Promise <any> => {
     console.log("/account query:", req.query)
     const { region, gameName, tagLine } = req.query;
 
@@ -42,7 +42,7 @@ app.get('/api/account', async (req: Request, res: Response): Promise<any> => {
     }
 
     try {
-        const accountData = await getAccountByRiotId(
+        const accountData: any = await getAccountByRiotId(
             region as keyof typeof PLATFORM_REGIONS,
             gameName as string,
             tagLine as string
@@ -56,7 +56,7 @@ app.get('/api/account', async (req: Request, res: Response): Promise<any> => {
 });
 
 // Route to fetch summoner details by Riot ID
-app.get('/api/summoner', async (req: Request, res: Response): Promise<any> => {
+app.get('/api/summoner', async (req: Request, res: Response): Promise <any> => {
     console.log('/summoner query:', req.query);
     const { region, gameName, tagLine } = req.query;
 
@@ -65,14 +65,14 @@ app.get('/api/summoner', async (req: Request, res: Response): Promise<any> => {
     }
 
     try {
-        const accountData = await getAccountByRiotId(
+        const accountData: any = await getAccountByRiotId(
             region as keyof typeof PLATFORM_REGIONS,
             gameName as string,
             tagLine as string
         );
-        const puuid = accountData.puuid;
+        const puuid:any = accountData.puuid;
 
-        const summonerDetails = await getSummonerDetails(
+        const summonerDetails:any = await getSummonerDetails(
             region as keyof typeof PLATFORM_REGIONS,
             puuid
         );
@@ -89,7 +89,7 @@ app.get('/api/summoner', async (req: Request, res: Response): Promise<any> => {
 });
 
 // Route to fetch summoner by Summoner ID
-app.get('/api/summoner-by-id', async (req: Request, res: Response): Promise<any> => {
+app.get('/api/summoner-by-id', async (req: Request, res: Response): Promise <any> => {
     const { region, summonerId } = req.query as { region?: string; summonerId?: string };
     console.log('/summoner-by-id query', { region, summonerId });
 
@@ -98,7 +98,7 @@ app.get('/api/summoner-by-id', async (req: Request, res: Response): Promise<any>
     }
 
     try {
-        const summonerData = await getSummonerById(
+        const summonerData: any = await getSummonerById(
             region as keyof typeof PLATFORM_REGIONS,
             summonerId
         );
@@ -127,7 +127,7 @@ app.get('/api/matches', async (req: Request, res: Response): Promise<any> => {
         let resolvedPuuid: string = puuid;
 
         if (!resolvedPuuid && gameName && tagLine) {
-            const accountData = await getAccountByRiotId(
+            const accountData:any = await getAccountByRiotId(
                 region as keyof typeof PLATFORM_REGIONS,
                 gameName,
                 tagLine
@@ -143,7 +143,7 @@ app.get('/api/matches', async (req: Request, res: Response): Promise<any> => {
             return res.status(400).json({ error: 'Missing required PUUID or gameName/tagLine.' });
         }
 
-        const matches = await getMatchIds(
+        const matches:any = await getMatchIds(
             region as keyof typeof PLATFORM_REGIONS,
             resolvedPuuid,
             count
@@ -156,7 +156,7 @@ app.get('/api/matches', async (req: Request, res: Response): Promise<any> => {
     }
 });
 
-app.get("/api/match-details", async (req, res):Promise<any> => {
+app.get("/api/match-details", async (req: Request, res: Response):Promise<any> => {
     const { region, puuid, matchIds } = req.query;
 
     if (!region || !puuid || !matchIds) {
@@ -212,6 +212,44 @@ app.get('/api/league', async (req: Request, res: Response): Promise<any> => {
       res.status(500).json({ error: 'Failed to fetch league data' });
     }
   });
+
+app.get("/api/clean-matches", async (req:Request, res:Response):Promise<any> => {
+    const { region, puuid } = req.query;
+
+    if (!region || !puuid) {
+        return res.status(400).json({ error: "Missing region or puuid" });
+    }
+
+    try {
+        const matches = await CleanMatchModel.find({ region, puuid })
+            .sort({ matchDate: -1 })
+            .limit(10);
+
+        res.json({ matches });
+    } catch (err) {
+        console.error("Error fetching clean matches:", err);
+        res.status(500).json({ error: "Failed to fetch clean matches" });
+    }
+});
+
+app.get("/api/match-timeline", async (req: Request, res: Response): Promise <any> => {
+    const { matchId, region } = req.query;
+
+    if (!matchId || !region) {
+        return res.status(400).json({ error: "Missing matchId or region" });
+    }
+
+    try {
+        const timeline: any = await getMatchTimeline(
+            region as keyof typeof PLATFORM_REGIONS,
+            matchId as string
+        );
+        res.json({ timeline });
+    } catch (err) {
+        console.error("Error fetching timeline:", err);
+        res.status(500).json({ error: "Failed to fetch match timeline" });
+    }
+});
   
   app.listen(5000, ():void => {
     console.log('Server running on port 5000');

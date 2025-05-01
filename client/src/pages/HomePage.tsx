@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
-//import SearchBar from '../components/SearchBar/SearchBar';
+import React from 'react';
 import NavigationBar from "../components/NavigationBar/NavigationBar";
 
 const HomePage: React.FC = () => {
-  const [region, setRegion] = useState('');
-  const [riotId, setRiotId] = useState('');
 
   return (
     <div className="navigation-bar">

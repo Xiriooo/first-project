@@ -42,8 +42,7 @@ const MatchNavigationBar: React.FC<MatchNavigationBarProps> = ({
                     value={filters.champion}
                     onChange={(e:ChangeEvent<HTMLSelectElement>): void => handleFilterChange('champion', e.target.value)}
                 >
-                    <option value="">All</option>
-                    {championOptions.map((champion: string) => (
+                    {championOptions?.map((champion: string) => (
                         <option key={champion} value={champion}>
                             {champion}
                         </option>
